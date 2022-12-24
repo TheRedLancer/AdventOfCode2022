@@ -19,55 +19,6 @@ std::ostream & operator<<(std::ostream & Str, point const & p) {
   return Str << "(" << p.first << "," << p.second << ")";
 }
 
-vector<string> getInput(string fileName);
-void printMap(vector<string> charMap);
-point getStart(vector<string> charMap);
-point findChar(vector<string> charMap, char c);
-vector<point> getNeighbors(point node, vector<string> charMap);
-
-
-int main(int argc, char** argv) {
-    vector<string> charMap = getInput("E:/Projects/AdventOfCode2022/day12/input.txt");
-    //printMap(charMap);
-    const int HEIGHT = charMap.size();
-    const int WIDTH = charMap[0].size();
-    queue<point> Q = queue<point>();
-    map<point, bool> visited = map<point, bool>();
-    map<point, point> parent = map<point, point>();
-
-    point start = findChar(charMap, 'S');
-    charMap[start.first][start.second] = 'a';
-    point end = findChar(charMap, 'E');
-    charMap[end.first][end.second] = 'z';
-
-    cout << "Start: " << start << endl << "End: " << end << endl;
-
-    parent[start] = point(-1, -1);
-    visited[start] = true;
-    Q.push(start);
-    while (!Q.empty()) {
-        point node = Q.front(); Q.pop();
-        vector<point> possiblePoints = getNeighbors(node, charMap);
-        for (const point& neighbor: possiblePoints) {
-            // neighbor.height <= this.height + 1;
-            if (!visited[neighbor] && ((int)charMap[neighbor.first][neighbor.second] <= (int)charMap[node.first][node.second] + 1)) {
-                visited[neighbor] = true;
-                parent[neighbor] = node;
-                Q.push(neighbor);
-            }
-        }
-    }
-    int count = 0;
-    point curr_node = end;
-    while (curr_node != start) {
-        //cout << curr_node << " --> ";
-        curr_node = parent[curr_node];
-        count++;
-    }
-    cout << (parent[{20, 1}] == point(20, 0)) << endl;
-    cout << endl << "Total Count: " << count << endl;
-    return 0;
-}
 
 vector<point> getNeighbors(point node, vector<string> charMap) {
     vector<point> neighbors = vector<point>();
@@ -126,4 +77,108 @@ void printMap(vector<string> charMap) {
     for (const auto line: charMap) {
         std::cout << line << std::endl;
     }
+}
+
+int part1(string filename) {
+    vector<string> charMap = getInput(filename);
+    //printMap(charMap);
+    const int HEIGHT = charMap.size();
+    const int WIDTH = charMap[0].size();
+    queue<point> Q = queue<point>();
+    map<point, bool> visited = map<point, bool>();
+    map<point, point> parent = map<point, point>();
+
+    point start = findChar(charMap, 'S');
+    charMap[start.first][start.second] = 'a';
+    point end = findChar(charMap, 'E');
+    charMap[end.first][end.second] = 'z';
+
+    cout << "Start: " << start << endl << "End: " << end << endl;
+
+    parent[start] = point(-1, -1);
+    visited[start] = true;
+    Q.push(start);
+    while (!Q.empty()) {
+        point node = Q.front(); Q.pop();
+        vector<point> possiblePoints = getNeighbors(node, charMap);
+        for (const point& neighbor: possiblePoints) {
+            // neighbor.height <= this.height + 1;
+            if (!visited[neighbor] && ((int)charMap[neighbor.first][neighbor.second] <= (int)charMap[node.first][node.second] + 1)) {
+                visited[neighbor] = true;
+                parent[neighbor] = node;
+                Q.push(neighbor);
+            }
+        }
+    }
+    int count = 0;
+    point curr_node = end;
+    while (curr_node != start) {
+        //cout << curr_node << " --> ";
+        curr_node = parent[curr_node];
+        count++;
+    }
+    return count;
+}
+
+int part2(string filename) {
+    vector<string> charMap = getInput(filename);
+    //printMap(charMap);
+    const int HEIGHT = charMap.size();
+    const int WIDTH = charMap[0].size();
+    queue<point> Q = queue<point>();
+    map<point, bool> visited = map<point, bool>();
+    map<point, point> parent = map<point, point>();
+
+    point start = findChar(charMap, 'S');
+    charMap[start.first][start.second] = 'a';
+    point end = findChar(charMap, 'E');
+    charMap[end.first][end.second] = 'z';
+
+    cout << "End: " << end << endl;
+
+    parent[end] = point(-1, -1);
+    visited[end] = true;
+    Q.push(end);
+
+    bool found_end = false;
+    point first_a = {-1, -1};
+
+    while (!found_end && !Q.empty()) {
+        point node = Q.front(); Q.pop();
+        vector<point> possiblePoints = getNeighbors(node, charMap);
+        for (const point& neighbor: possiblePoints) {
+            // neighbor.height >= this.height - 1;
+            if (!visited[neighbor] && ((int)charMap[neighbor.first][neighbor.second] >= (int)charMap[node.first][node.second] - 1)) {
+                visited[neighbor] = true;
+                parent[neighbor] = node;
+                if (charMap[neighbor.first][neighbor.second] == 'a') {
+                    found_end = true;
+                    first_a = neighbor;
+                } else {
+                    Q.push(neighbor);
+                }
+            }
+        }
+    }
+    int count = 0;
+    point curr_node = first_a;
+    while (curr_node != end) {
+        //cout << curr_node << " --> ";
+        curr_node = parent[curr_node];
+        count++;
+    }
+    return count;
+}
+
+int main(int argc, char** argv) {
+    string input = "E:/Projects/AdventOfCode2022/day12/input.txt";
+    string test = "E:/Projects/AdventOfCode2022/day12/test.txt";
+    int part1_count = part1(input);
+    cout << "Part1: " << part1_count << endl;
+
+    int part2_count = part2(input);
+    cout << "Part2: " << part2_count << endl;
+    
+
+    return 0;
 }
